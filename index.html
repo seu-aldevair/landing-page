@@ -1,0 +1,1080 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dieferson Sanabria - Corretor de Imóveis</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="container top-content">
+      <img src="logo-dieferson.png" class="logo" alt="Logo Dieferson Sanabria">
+      <div class="top-info">
+        <span>DIÉFERSON SANABRIA • CRECI 16240</span>
+        <a href="https://wa.me/556781419684?text=Ol%C3%A1%2C%20vi%20sua%20p%C3%A1gina%20e%20quero%20falar%20sobre%20im%C3%B3veis." class="btn btn-small">Falar no WhatsApp</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-text">
+          <h1>Encontre o imóvel ideal com <span>Dieferson Sanabria</span></h1>
+          <p>Casas, apartamentos e condomínios com atendimento humanizado, rápido e seguro.</p>
+          <ul class="bullets">
+            <li>Atendimento via WhatsApp em poucos minutos</li>
+            <li>Acompanhamento em todo o processo de compra</li>
+            <li>Imóveis selecionados conforme o seu perfil</li>
+          </ul>
+          <a href="https://wa.me/556781419684?text=Ol%C3%A1%2C%20quero%20ajuda%20para%20encontrar%20um%20im%C3%B3vel%20ideal." class="btn btn-main">
+            Falar agora no WhatsApp
+          </a>
+          <p class="hero-note">Clique no botão acima e me diga o que você procura. Eu te envio opções personalizadas.</p>
+        </div>
+        <div class="hero-card">
+          <h2>Receba opções de imóveis</h2>
+          <p>Preencha os dados abaixo e clique em enviar. Abrirá o WhatsApp já com uma mensagem pronta.</p>
+          <form onsubmit="event.preventDefault(); enviarWhatsForm();">
+            <input id="nome" type="text" placeholder="Seu nome" required>
+            <input id="cidade" type="text" placeholder="Cidade / Bairro" required>
+            <select id="tipo">
+              <option value="comprar">Quero comprar</option>
+              <option value="alugar">Quero alugar</option>
+              <option value="investir">Quero investir</option>
+            </select>
+            <button type="submit" class="btn w-100">Enviar no WhatsApp</button>
+          </form>
+          <small>Você será redirecionado para o WhatsApp para concluir o contato.</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="imoveis">
+      <div class="container">
+        <h2>Imóveis em Destaque</h2>
+        <p class="section-sub">Clique nas fotos abaixo para falar comigo no WhatsApp sobre cada imóvel.</p>
+        <div class="grid">
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <p>© 2025 - Dieferson Sanabria - CRECI 16240</p>
+      <p>Desenvolvido para apresentar seus imóveis com mais destaque.</p>
+      <button class="admin-link" type="button" onclick="openAdmin()">Acesso administrativo</button>
+    </div>
+  </footer>
+
+  <section id="admin" class="admin" aria-hidden="true">
+    <div class="admin-backdrop"></div>
+    <div class="admin-shell" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+      <header class="admin-top">
+        <div>
+          <p class="admin-kicker">Painel Administrativo</p>
+          <h2 id="admin-title">Central de Imoveis</h2>
+          <p class="admin-subtitle">Atualize os destaques em poucos passos: escreva, envie midias e publique.</p>
+        </div>
+        <div class="admin-top-actions">
+          <button class="admin-close" type="button" onclick="closeAdmin()">Fechar</button>
+        </div>
+      </header>
+
+      <div id="admin-login" class="admin-login">
+        <p>Somente o administrador tem acesso. Informe a senha abaixo.</p>
+        <div class="admin-login-row">
+          <input id="admin-pass" type="password" placeholder="Senha do admin" autocomplete="current-password">
+          <button type="button" class="btn" onclick="adminLogin()">Entrar</button>
+        </div>
+        <small>Para maior seguranca, use autenticacao no servidor.</small>
+      </div>
+
+      <div id="admin-content" class="admin-content" hidden>
+        <div class="admin-mode" role="tablist" aria-label="Modo de edicao">
+          <button type="button" class="admin-mode-btn is-active" data-mode="add">Adicionar</button>
+          <button type="button" class="admin-mode-btn" data-mode="edit">Editar</button>
+          <button type="button" class="admin-mode-btn" data-mode="delete">Excluir</button>
+        </div>
+
+        <div class="admin-body">
+          <div class="admin-stack">
+            <section class="admin-pane">
+              <div class="admin-pane-header">
+                <div>
+                  <h3>Detalhes do imovel</h3>
+                  <p class="admin-pane-note">Preencha titulo e descricao para aparecerem no card.</p>
+                </div>
+                <span id="step-tag-form" class="admin-pane-tag">Passo 1</span>
+              </div>
+
+              <div class="admin-form" id="admin-form">
+                <div class="admin-field">
+                  <label for="media-title">Titulo do imovel</label>
+                  <input id="media-title" type="text" placeholder="Ex: Casa moderna com garagem">
+                </div>
+                <div class="admin-field">
+                  <label for="media-desc">Descricao curta</label>
+                  <textarea id="media-desc" rows="3" placeholder="Ex: Fachada contemporanea e otima localizacao."></textarea>
+                </div>
+                <div class="admin-field admin-field-wide">
+                  <label for="media-whatsapp">Mensagem do WhatsApp</label>
+                  <input id="media-whatsapp" type="text" placeholder="Ex: Ola, me interessei neste imovel e quero mais informacoes.">
+                  <div class="admin-field-meta">
+                    <small id="media-whatsapp-hint" class="admin-field-hint">Se deixar vazio, usa mensagem padrao.</small>
+                    <small id="media-whatsapp-count" class="admin-field-count">0 caracteres</small>
+                  </div>
+                </div>
+                <div class="admin-field admin-field-wide">
+                  <label for="media-files">Fotos ou videos</label>
+                  <input id="media-files" type="file" accept="image/*,video/*" multiple>
+                  <div id="admin-files-list" class="admin-files-list"></div>
+                </div>
+              </div>
+
+              <div class="admin-actions">
+                <button id="admin-confirm-btn" type="button" class="btn" onclick="confirmAdminAction()">Adicionar midia</button>
+                <button type="button" class="btn btn-outline" onclick="clearAdminSelection()">Limpar</button>
+              </div>
+              <small class="admin-form-hint">Os arquivos sao enviados para o servidor e aparecem na pagina.</small>
+            </section>
+
+            <section class="admin-pane admin-preview" id="admin-preview">
+              <div class="admin-pane-header">
+                <div>
+                  <h3>Previa</h3>
+                  <p id="admin-preview-note" class="admin-pane-note">Selecione arquivos para ver a previa.</p>
+                </div>
+                <span id="step-tag-preview" class="admin-pane-tag">Passo 2</span>
+              </div>
+              <div id="admin-preview-grid" class="admin-preview-grid"></div>
+            </section>
+          </div>
+
+          <section class="admin-pane admin-items" id="admin-items">
+            <div class="admin-pane-header">
+              <div>
+                <h3>Itens publicados</h3>
+                <p id="admin-items-note" class="admin-pane-note">Clique em um item para selecionar.</p>
+              </div>
+              <span id="step-tag-items" class="admin-pane-tag">Passo 3</span>
+            </div>
+            <div id="admin-items-list" class="admin-items-list"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <section id="admin-confirm" class="admin-confirm" aria-hidden="true">
+    <div class="admin-confirm-overlay" onclick="closeDeleteConfirm()"></div>
+    <div class="admin-confirm-panel" role="dialog" aria-modal="true" aria-labelledby="admin-confirm-title">
+      <h3 id="admin-confirm-title">Confirmar exclusao</h3>
+      <p id="admin-confirm-text">Tem certeza que deseja excluir este item? Essa acao nao pode ser desfeita.</p>
+      <div class="admin-confirm-actions">
+        <button type="button" class="btn btn-outline" onclick="closeDeleteConfirm()">Cancelar</button>
+        <button type="button" class="btn" onclick="confirmDeleteAction()">Excluir agora</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const ADMIN_PASSWORD = "adm123";
+    const DEFAULT_WHATS_MESSAGE = "Ola, me interessei no imovel da landing e quero mais informacoes.";
+    const adminItems = new Map();
+    let selectedAdminId = null;
+    let itemCounter = 0;
+    let draftPreviewUrls = [];
+    let adminActionMode = 'add';
+    const API_BASE = window.location.port === '5500' ? 'http://localhost:3001' : '';
+    let pendingDeleteIds = [];
+    const deleteSelection = new Set();
+    let selectedFiles = [];
+    const toastQueue = [];
+    let toastTimer = null;
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.textContent = message;
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.add('is-visible');
+      });
+
+      const remove = () => {
+        toast.classList.remove('is-visible');
+        setTimeout(() => toast.remove(), 220);
+      };
+
+      setTimeout(remove, 3200);
+    }
+
+    function resolveMediaUrl(url) {
+      if (!url) return url;
+      if (url.startsWith('http')) return url;
+      if (url.startsWith('/uploads') && API_BASE) return API_BASE + url;
+      return url;
+    }
+
+    function enviarWhatsForm() {
+      const nome = document.getElementById('nome').value.trim();
+      const cidade = document.getElementById('cidade').value.trim();
+      const tipo = document.getElementById('tipo').value;
+
+      let msg = "Olá, meu nome é " + nome + ". ";
+      msg += "Estou em " + cidade + " e quero ";
+
+      if (tipo === "comprar") msg += "comprar um imóvel.";
+      if (tipo === "alugar") msg += "alugar um imóvel.";
+      if (tipo === "investir") msg += "investir em um imóvel.";
+
+      msg += " Vim pela sua landing page.";
+
+      const url = "https://wa.me/556781419684?text=" + encodeURIComponent(msg);
+      window.location.href = url;
+    }
+
+    function openAdmin() {
+      const adminSection = document.getElementById('admin');
+      adminSection.setAttribute('aria-hidden', 'false');
+      adminSection.classList.add('admin-open');
+      document.body.classList.add('no-scroll');
+      if (sessionStorage.getItem('adminAuth') === '1') {
+        showAdminContent();
+      }
+    }
+
+    function closeAdmin() {
+      const adminSection = document.getElementById('admin');
+      adminSection.setAttribute('aria-hidden', 'true');
+      adminSection.classList.remove('admin-open');
+      document.body.classList.remove('no-scroll');
+    }
+
+    function adminLogin() {
+      const pass = document.getElementById('admin-pass').value.trim();
+      if (pass === ADMIN_PASSWORD) {
+        sessionStorage.setItem('adminAuth', '1');
+        showAdminContent();
+        showToast('Login realizado com sucesso.', 'success');
+      } else {
+        showToast('Senha incorreta.', 'error');
+      }
+    }
+
+    function showAdminContent() {
+      document.getElementById('admin-login').hidden = true;
+      document.getElementById('admin-content').hidden = false;
+      setAdminActionMode('add');
+    }
+
+    function getSelectedFiles() {
+      const input = document.getElementById('media-files');
+      const inputFiles = Array.from((input && input.files) ? input.files : []);
+      if (selectedFiles.length === 0 && inputFiles.length > 0) {
+        selectedFiles = inputFiles;
+        renderSelectedFiles();
+      }
+      return selectedFiles.length > 0 ? selectedFiles : inputFiles;
+    }
+
+    async function addMediaCards() {
+      const files = getSelectedFiles();
+      if (!files || files.length === 0) {
+        showToast('Selecione ao menos um arquivo.', 'error');
+        return;
+      }
+
+      const titleInput = document.getElementById('media-title');
+      const descInput = document.getElementById('media-desc');
+      const messageInput = document.getElementById('media-whatsapp');
+      const title = titleInput.value.trim() || 'Novo imovel';
+      const desc = descInput.value.trim() || 'Mais detalhes no WhatsApp.';
+      const whatsappMessage = messageInput.value.trim() || DEFAULT_WHATS_MESSAGE;
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('desc', desc);
+      formData.append('whatsappMessage', whatsappMessage);
+      Array.from(files).forEach((file) => formData.append('files', file));
+
+      try {
+        const response = await fetch(API_BASE + '/api/items', {
+          method: 'POST',
+          body: formData
+        });
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error('Falha ao salvar arquivos. ' + (errorText || ''));
+        }
+        const savedItems = await response.json();
+        if (Array.isArray(savedItems)) {
+          const combined = {
+            id: savedItems[0]?.id,
+            title,
+            desc,
+            media: savedItems.map((item) => ({
+              type: item.type || 'image',
+              url: item.url
+            }))
+          };
+          addAdminItemFromData(combined);
+        } else {
+          addAdminItemFromData(savedItems);
+        }
+
+        titleInput.value = '';
+        descInput.value = '';
+        messageInput.value = '';
+        resizeAdminTextarea();
+        updateWhatsappMeta();
+        document.getElementById('media-files').value = '';
+        selectedFiles = [];
+        renderSelectedFiles();
+        clearDraftPreview();
+        showToast('Midia adicionada com sucesso.', 'success');
+      } catch (error) {
+        showToast('Nao foi possivel salvar. ' + (error.message || 'Verifique o servidor.'), 'error');
+      }
+    }
+
+    function getMediaList(data) {
+      if (Array.isArray(data.media) && data.media.length > 0) {
+        return data.media.map((media) => ({
+          type: media.type || 'image',
+          url: resolveMediaUrl(media.url)
+        }));
+      }
+      if (data.url) {
+        return [{ type: data.type || 'image', url: resolveMediaUrl(data.url) }];
+      }
+      return [];
+    }
+
+    function addAdminItemFromData(data) {
+      const id = data.id || 'item-' + Date.now() + '-' + itemCounter++;
+      const mediaList = getMediaList(data);
+      const isVideo = mediaList[0]?.type === 'video';
+
+      const item = {
+        id,
+        title: data.title || 'Novo imovel',
+        desc: data.desc || 'Mais detalhes no WhatsApp.',
+        isVideo,
+        whatsappMessage: data.whatsappMessage || DEFAULT_WHATS_MESSAGE,
+        url: mediaList[0]?.url || data.url,
+        media: mediaList,
+        mediaIndex: 0,
+        mediaTimer: null,
+        mediaPaused: false,
+        cardEl: null,
+        rowEl: null
+      };
+
+      item.cardEl = createCardElement(item);
+      item.rowEl = createAdminRow(item);
+
+      document.querySelector('.imoveis .grid').appendChild(item.cardEl);
+      document.getElementById('admin-items-list').appendChild(item.rowEl);
+
+      adminItems.set(id, item);
+    }
+
+    function createCardElement(item) {
+      const card = document.createElement('a');
+      card.className = 'card';
+      card.dataset.adminId = item.id;
+      card.href = 'https://wa.me/556781419684?text=' + encodeURIComponent(item.whatsappMessage || DEFAULT_WHATS_MESSAGE);
+
+      const mediaWrap = document.createElement('div');
+      mediaWrap.className = 'card-media';
+      const info = document.createElement('div');
+      info.className = 'card-info';
+      info.innerHTML = '<h3>' + item.title + '</h3><p>' + item.desc + '</p><span class="card-cta">Chamar no Whats</span>';
+
+      card.appendChild(mediaWrap);
+      card.appendChild(info);
+
+      renderCardMedia(item, card);
+      startMediaRotation(item, card);
+      return card;
+    }
+
+    function createAdminRow(item) {
+      const row = document.createElement('div');
+      row.className = 'admin-item-row';
+      row.dataset.adminId = item.id;
+
+      const thumbs = buildThumbs(item);
+
+      const meta = document.createElement('div');
+      meta.className = 'admin-item-meta';
+      meta.innerHTML = '<strong>' + item.title + '</strong><span>' + item.desc + '</span>';
+
+      const actions = document.createElement('div');
+      actions.className = 'admin-item-actions';
+
+      const check = document.createElement('span');
+      check.className = 'admin-item-check';
+      actions.appendChild(check);
+
+      const hint = document.createElement('span');
+      hint.className = 'admin-item-hint';
+      hint.textContent = 'Clique para selecionar';
+      actions.appendChild(hint);
+
+      row.appendChild(thumbs);
+      row.appendChild(meta);
+      row.appendChild(actions);
+      row.addEventListener('click', () => selectAdminItem(item.id));
+      return row;
+    }
+
+    function buildThumbs(item) {
+      const wrap = document.createElement('div');
+      wrap.className = 'admin-item-thumbs';
+      const mediaList = item.media && item.media.length ? item.media : [{
+        type: item.isVideo ? 'video' : 'image',
+        url: item.url
+      }];
+
+      mediaList.slice(0, 3).forEach((mediaItem) => {
+        const thumb = mediaItem.type === 'video' ? document.createElement('video') : document.createElement('img');
+        if (mediaItem.type === 'video') {
+          thumb.muted = true;
+          thumb.playsInline = true;
+        } else {
+          thumb.alt = 'Miniatura';
+        }
+        thumb.src = mediaItem.url;
+        thumb.className = 'admin-thumb';
+        wrap.appendChild(thumb);
+      });
+
+      return wrap;
+    }
+
+    function buildMediaElement(mediaItem) {
+      const isVideo = mediaItem.type === 'video';
+      const media = isVideo ? document.createElement('video') : document.createElement('img');
+      if (isVideo) {
+        media.controls = false;
+        media.playsInline = true;
+        media.preload = 'metadata';
+      } else {
+        media.alt = 'Midia do imovel';
+      }
+      media.src = mediaItem.url;
+      return media;
+    }
+
+    function selectAdminItem(id) {
+      const item = adminItems.get(id);
+      if (!item) return;
+      if (adminActionMode === 'delete') {
+        if (deleteSelection.has(id)) {
+          deleteSelection.delete(id);
+        } else {
+          deleteSelection.add(id);
+        }
+        updateDeleteSelectionUi();
+        updateConfirmButtonState();
+        return;
+      }
+      selectedAdminId = id;
+      document.querySelectorAll('.admin-item-row').forEach((row) => {
+        row.classList.toggle('is-active', row.dataset.adminId === id);
+      });
+      const formSection = document.getElementById('admin-form');
+      const previewSection = document.getElementById('admin-preview');
+      if (adminActionMode === 'edit') {
+        formSection.classList.remove('is-locked');
+        previewSection.classList.remove('is-locked');
+      }
+      if (adminActionMode === 'delete') {
+        formSection.classList.add('is-locked');
+        previewSection.classList.add('is-locked');
+      }
+      updateConfirmButtonState();
+      document.getElementById('media-title').value = item.title;
+      document.getElementById('media-desc').value = item.desc;
+      document.getElementById('media-whatsapp').value = item.whatsappMessage || DEFAULT_WHATS_MESSAGE;
+      document.getElementById('media-files').value = '';
+      resizeAdminTextarea();
+      updateWhatsappMeta();
+    }
+
+    function setAdminActionMode(mode) {
+      adminActionMode = mode;
+      const itemsNote = document.getElementById('admin-items-note');
+      const confirmBtn = document.getElementById('admin-confirm-btn');
+      const formSection = document.getElementById('admin-form');
+      const previewSection = document.getElementById('admin-preview');
+      const itemsSection = document.getElementById('admin-items');
+      const adminBody = document.querySelector('.admin-body');
+      const adminContent = document.getElementById('admin-content');
+
+      updateModeButtons();
+      updateStepTags(mode);
+
+      if (mode === 'edit') {
+        itemsNote.textContent = 'Selecione o item para editar.';
+        confirmBtn.textContent = 'Salvar edicao';
+        confirmBtn.disabled = !selectedAdminId;
+        formSection.classList.toggle('is-locked', !selectedAdminId);
+        previewSection.classList.toggle('is-locked', !selectedAdminId);
+        previewSection.classList.remove('is-hidden');
+        itemsSection.classList.remove('is-hidden');
+        adminBody.classList.remove('is-compact');
+        adminContent.classList.remove('is-delete-mode');
+        deleteSelection.clear();
+        updateDeleteSelectionUi();
+      } else if (mode === 'delete') {
+        itemsNote.textContent = 'Selecione o item e confirme a exclusao.';
+        confirmBtn.textContent = 'Excluir selecionado';
+        confirmBtn.disabled = deleteSelection.size === 0;
+        formSection.classList.add('is-locked');
+        previewSection.classList.add('is-locked');
+        previewSection.classList.add('is-hidden');
+        itemsSection.classList.remove('is-hidden');
+        adminBody.classList.remove('is-compact');
+        adminContent.classList.add('is-delete-mode');
+        selectedAdminId = null;
+        deleteSelection.clear();
+        updateDeleteSelectionUi();
+      } else {
+        itemsNote.textContent = 'Clique em um item para selecionar.';
+        clearAdminSelection();
+        confirmBtn.textContent = 'Adicionar midia';
+        confirmBtn.disabled = false;
+        formSection.classList.remove('is-locked');
+        previewSection.classList.remove('is-locked');
+        previewSection.classList.remove('is-hidden');
+        itemsSection.classList.add('is-hidden');
+        adminBody.classList.add('is-compact');
+        adminContent.classList.remove('is-delete-mode');
+        deleteSelection.clear();
+        updateDeleteSelectionUi();
+      }
+    }
+
+    function updateStepTags(mode) {
+      const formTag = document.getElementById('step-tag-form');
+      const previewTag = document.getElementById('step-tag-preview');
+      const itemsTag = document.getElementById('step-tag-items');
+      if (!formTag || !previewTag || !itemsTag) return;
+
+      if (mode === 'edit') {
+        itemsTag.textContent = 'Passo 1';
+        formTag.textContent = 'Passo 2';
+        previewTag.textContent = 'Passo 3';
+      } else if (mode === 'delete') {
+        itemsTag.textContent = 'Passo 1';
+        formTag.textContent = 'Passo 2';
+        previewTag.textContent = 'Passo 3';
+      } else {
+        formTag.textContent = 'Passo 1';
+        previewTag.textContent = 'Passo 2';
+        itemsTag.textContent = 'Passo 3';
+      }
+    }
+
+    async function applyEdits(id) {
+      const item = adminItems.get(id);
+      if (!item) return;
+
+      const titleInput = document.getElementById('media-title');
+      const descInput = document.getElementById('media-desc');
+      const messageInput = document.getElementById('media-whatsapp');
+      const fileInput = document.getElementById('media-files');
+      const files = getSelectedFiles();
+
+      const formData = new FormData();
+      formData.append('title', titleInput.value.trim() || item.title);
+      formData.append('desc', descInput.value.trim() || item.desc);
+      formData.append('whatsappMessage', messageInput.value.trim() || item.whatsappMessage || DEFAULT_WHATS_MESSAGE);
+      if (files.length > 0) {
+        files.forEach((file) => formData.append('files', file));
+      }
+
+      try {
+        const response = await fetch(API_BASE + '/api/items/' + encodeURIComponent(id), {
+          method: 'PUT',
+          body: formData
+        });
+        if (!response.ok) throw new Error('Falha ao editar.');
+        const updated = await response.json();
+
+        const mediaList = getMediaList(updated);
+        item.title = updated.title;
+        item.desc = updated.desc;
+        item.whatsappMessage = updated.whatsappMessage || item.whatsappMessage || DEFAULT_WHATS_MESSAGE;
+        item.isVideo = mediaList[0]?.type === 'video';
+        item.url = mediaList[0]?.url || updated.url;
+        item.media = mediaList;
+        item.mediaIndex = 0;
+        item.mediaPaused = false;
+
+        updateItemElements(item);
+        fileInput.value = '';
+        selectedFiles = [];
+        renderSelectedFiles();
+        clearDraftPreview();
+        updateConfirmButtonState();
+        showToast('Edicao salva com sucesso.', 'success');
+      } catch (error) {
+        showToast('Nao foi possivel editar. Verifique o servidor.', 'error');
+      }
+    }
+
+    function clearAdminSelection() {
+      selectedAdminId = null;
+      document.getElementById('media-title').value = '';
+      document.getElementById('media-desc').value = '';
+      document.getElementById('media-whatsapp').value = '';
+      document.getElementById('media-files').value = '';
+      selectedFiles = [];
+      renderSelectedFiles();
+      clearDraftPreview();
+      document.querySelectorAll('.admin-item-row').forEach((row) => row.classList.remove('is-active'));
+      resizeAdminTextarea();
+      const formSection = document.getElementById('admin-form');
+      const previewSection = document.getElementById('admin-preview');
+      if (adminActionMode === 'delete') {
+        deleteSelection.clear();
+        updateDeleteSelectionUi();
+      }
+      if (adminActionMode === 'add') {
+        formSection.classList.remove('is-locked');
+        previewSection.classList.remove('is-locked');
+      } else {
+        formSection.classList.add('is-locked');
+        previewSection.classList.add('is-locked');
+      }
+      updateConfirmButtonState();
+      updateWhatsappMeta();
+    }
+
+    function updateItemElements(item) {
+      updateCardContent(item.cardEl, item);
+      updateRowContent(item.rowEl, item);
+    }
+
+    function updateCardContent(card, item) {
+      if (!card) return;
+      const info = card.querySelector('.card-info');
+      if (info) {
+        info.innerHTML = '<h3>' + item.title + '</h3><p>' + item.desc + '</p><span class="card-cta">Chamar no Whats</span>';
+      }
+      card.href = 'https://wa.me/556781419684?text=' + encodeURIComponent(item.whatsappMessage || DEFAULT_WHATS_MESSAGE);
+      renderCardMedia(item, card);
+      startMediaRotation(item, card);
+    }
+
+    function updateRowContent(row, item) {
+      if (!row) return;
+      const thumbs = row.querySelector('.admin-item-thumbs');
+      if (thumbs) {
+        const newThumbs = buildThumbs(item);
+        row.replaceChild(newThumbs, thumbs);
+      }
+      const meta = row.querySelector('.admin-item-meta');
+      if (meta) {
+        meta.innerHTML = '<strong>' + item.title + '</strong><span>' + item.desc + '</span>';
+      }
+    }
+
+    function renderCardMedia(item, card) {
+      const mediaWrap = card.querySelector('.card-media');
+      if (!mediaWrap || !item.media || item.media.length === 0) return;
+      const index = item.mediaIndex || 0;
+      const mediaItem = item.media[index];
+
+      mediaWrap.innerHTML = '';
+      mediaWrap.classList.remove('has-video');
+      const mediaEl = buildMediaElement(mediaItem);
+
+      if (mediaItem.type === 'video') {
+        const playBtn = document.createElement('button');
+        playBtn.type = 'button';
+        playBtn.className = 'media-play';
+        playBtn.setAttribute('aria-label', 'Reproduzir video');
+        playBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (mediaEl.paused) {
+            mediaEl.play();
+          } else {
+            mediaEl.pause();
+          }
+        });
+
+        mediaEl.addEventListener('play', () => {
+          item.mediaPaused = true;
+          if (item.mediaResumeTimer) {
+            clearTimeout(item.mediaResumeTimer);
+            item.mediaResumeTimer = null;
+          }
+          mediaWrap.classList.add('is-playing');
+          playBtn.classList.add('is-pause');
+        });
+        mediaEl.addEventListener('pause', () => {
+          playBtn.classList.remove('is-pause');
+          mediaWrap.classList.remove('is-playing');
+          if (item.mediaResumeTimer) {
+            clearTimeout(item.mediaResumeTimer);
+          }
+          item.mediaResumeTimer = setTimeout(() => {
+            mediaEl.currentTime = 0;
+            item.mediaPaused = false;
+          }, 6000);
+        });
+        mediaEl.addEventListener('ended', () => {
+          item.mediaPaused = false;
+          mediaWrap.classList.remove('is-playing');
+          playBtn.classList.remove('is-pause');
+          if (item.mediaResumeTimer) {
+            clearTimeout(item.mediaResumeTimer);
+            item.mediaResumeTimer = null;
+          }
+        });
+
+        mediaWrap.appendChild(mediaEl);
+        mediaWrap.appendChild(playBtn);
+        mediaWrap.classList.add('has-video');
+        return;
+      }
+
+      mediaWrap.appendChild(mediaEl);
+    }
+
+    function startMediaRotation(item, card) {
+      if (!item.media || item.media.length <= 1) return;
+      if (item.mediaTimer) {
+        clearInterval(item.mediaTimer);
+      }
+      item.mediaTimer = setInterval(() => {
+        if (item.mediaPaused) return;
+        item.mediaIndex = (item.mediaIndex + 1) % item.media.length;
+        renderCardMedia(item, card);
+      }, 4000);
+    }
+
+    async function removeAdminItem(id, options = {}) {
+      const item = adminItems.get(id);
+      if (!item) return;
+
+      try {
+        const response = await fetch(API_BASE + '/api/items/' + encodeURIComponent(id), {
+          method: 'DELETE'
+        });
+        if (!response.ok) throw new Error('Falha ao excluir.');
+
+        if (item.cardEl) item.cardEl.remove();
+        if (item.rowEl) item.rowEl.remove();
+        if (item.mediaTimer) {
+          clearInterval(item.mediaTimer);
+        }
+
+        if (selectedAdminId === id) {
+          clearAdminSelection();
+        }
+
+        adminItems.delete(id);
+        updateConfirmButtonState();
+        showToast('Item excluido.', 'success');
+      } catch (error) {
+        showToast('Nao foi possivel excluir. Verifique o servidor.', 'error');
+      }
+    }
+
+    function resizeAdminTextarea() {
+      const textarea = document.getElementById('media-desc');
+      if (!textarea) return;
+      textarea.style.height = '44px';
+    }
+
+    function updateWhatsappMeta() {
+      const input = document.getElementById('media-whatsapp');
+      const hint = document.getElementById('media-whatsapp-hint');
+      const count = document.getElementById('media-whatsapp-count');
+      if (!input) return;
+      const value = input.value.trim();
+      if (hint) {
+        hint.textContent = value ? 'Mensagem personalizada ativa.' : 'Se deixar vazio, usa mensagem padrao.';
+      }
+      if (count) {
+        const length = value.length || DEFAULT_WHATS_MESSAGE.length;
+        count.textContent = length + ' caracteres';
+      }
+    }
+
+    document.getElementById('media-files').addEventListener('change', (event) => {
+      appendSelectedFiles(event.target.files);
+    });
+
+    document.getElementById('media-title').addEventListener('input', () => {
+      updateDraftPreview(getSelectedFiles());
+    });
+
+    document.getElementById('media-desc').addEventListener('input', () => {
+      updateDraftPreview(getSelectedFiles());
+    });
+
+    document.getElementById('media-whatsapp').addEventListener('input', () => {
+      updateWhatsappMeta();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      sessionStorage.removeItem('adminAuth');
+      resizeAdminTextarea();
+      updateWhatsappMeta();
+      document.querySelectorAll('.admin-mode-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+          setAdminActionMode(button.dataset.mode);
+        });
+      });
+      loadAdminItems();
+    });
+
+    window.addEventListener('beforeunload', () => {
+      sessionStorage.removeItem('adminAuth');
+    });
+
+    function updateModeButtons() {
+      document.querySelectorAll('.admin-mode-btn').forEach((button) => {
+        button.classList.toggle('is-active', button.dataset.mode === adminActionMode);
+      });
+    }
+
+    function confirmAdminAction() {
+      if (adminActionMode === 'add') {
+        addMediaCards();
+        return;
+      }
+
+      if (adminActionMode === 'edit') {
+        if (!selectedAdminId) {
+          const itemsNote = document.getElementById('admin-items-note');
+          itemsNote.textContent = 'Selecione um item para continuar.';
+          return;
+        }
+        applyEdits(selectedAdminId);
+      }
+
+      if (adminActionMode === 'delete') {
+        if (deleteSelection.size === 0) {
+          const itemsNote = document.getElementById('admin-items-note');
+          itemsNote.textContent = 'Selecione ao menos um item para excluir.';
+          return;
+        }
+        openDeleteConfirm(Array.from(deleteSelection));
+      }
+    }
+
+    function resetAdminActionMode() {
+      setAdminActionMode('add');
+      updateConfirmButtonState();
+    }
+
+    function updateConfirmButtonState() {
+      const confirmBtn = document.getElementById('admin-confirm-btn');
+      if (!confirmBtn) return;
+      if (adminActionMode === 'edit' || adminActionMode === 'delete') {
+        if (adminActionMode === 'delete') {
+          confirmBtn.disabled = deleteSelection.size === 0;
+        } else {
+          confirmBtn.disabled = !selectedAdminId;
+        }
+      }
+    }
+
+    function openDeleteConfirm(ids) {
+      pendingDeleteIds = Array.isArray(ids) ? ids : [ids];
+      const confirmText = document.getElementById('admin-confirm-text');
+      if (confirmText) {
+        if (pendingDeleteIds.length > 1) {
+          confirmText.textContent = 'Tem certeza que deseja excluir ' + pendingDeleteIds.length + ' itens? Essa acao nao pode ser desfeita.';
+        } else {
+          confirmText.textContent = 'Tem certeza que deseja excluir este item? Essa acao nao pode ser desfeita.';
+        }
+      }
+      const modal = document.getElementById('admin-confirm');
+      modal.setAttribute('aria-hidden', 'false');
+      modal.classList.add('admin-confirm-open');
+    }
+
+    function closeDeleteConfirm() {
+      pendingDeleteIds = [];
+      const modal = document.getElementById('admin-confirm');
+      modal.setAttribute('aria-hidden', 'true');
+      modal.classList.remove('admin-confirm-open');
+    }
+
+    function confirmDeleteAction() {
+      if (!pendingDeleteIds || pendingDeleteIds.length === 0) {
+        closeDeleteConfirm();
+        return;
+      }
+      const ids = [...pendingDeleteIds];
+      pendingDeleteIds = [];
+      ids.forEach((id) => removeAdminItem(id, { keepMode: true }));
+      deleteSelection.clear();
+      updateDeleteSelectionUi();
+      closeDeleteConfirm();
+    }
+
+    function updateDeleteSelectionUi() {
+      document.querySelectorAll('.admin-item-row').forEach((row) => {
+        const id = row.dataset.adminId;
+        row.classList.toggle('is-marked', deleteSelection.has(id));
+      });
+    }
+
+    function updateDraftPreview(files) {
+      clearDraftPreview();
+      if (!files || files.length === 0) return;
+      const previewGrid = document.getElementById('admin-preview-grid');
+      const previewNote = document.getElementById('admin-preview-note');
+      const title = document.getElementById('media-title').value.trim() || 'Novo imovel';
+      const desc = document.getElementById('media-desc').value.trim() || 'Descricao do imovel.';
+      previewNote.textContent = files.length + ' arquivo(s) selecionado(s).';
+
+      Array.from(files).forEach((file) => {
+        const isVideo = file.type.startsWith('video/');
+        const url = URL.createObjectURL(file);
+        draftPreviewUrls.push(url);
+
+        const card = document.createElement('div');
+        card.className = 'admin-preview-card';
+
+        const media = isVideo ? document.createElement('video') : document.createElement('img');
+        if (isVideo) {
+          media.controls = true;
+          media.muted = true;
+          media.playsInline = true;
+          media.preload = 'metadata';
+        }
+        media.src = url;
+
+        const text = document.createElement('div');
+        text.className = 'admin-preview-text';
+        text.innerHTML = '<strong>' + title + '</strong><span>' + desc + '</span><em>' + (isVideo ? 'Video' : 'Foto') + ' · ' + file.name + '</em>';
+
+        if (isVideo) {
+          const playBtn = document.createElement('button');
+          playBtn.type = 'button';
+          playBtn.className = 'media-play';
+          playBtn.setAttribute('aria-label', 'Reproduzir video');
+          playBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            media.play();
+          });
+
+          media.addEventListener('play', () => {
+            card.classList.add('is-playing');
+          });
+          media.addEventListener('pause', () => {
+            card.classList.remove('is-playing');
+          });
+          media.addEventListener('ended', () => {
+            card.classList.remove('is-playing');
+          });
+
+          card.appendChild(media);
+          card.appendChild(playBtn);
+          card.classList.add('has-video');
+        } else {
+          card.appendChild(media);
+        }
+        card.appendChild(text);
+        previewGrid.appendChild(card);
+      });
+    }
+
+    function clearDraftPreview() {
+      const previewGrid = document.getElementById('admin-preview-grid');
+      previewGrid.innerHTML = '';
+      const previewNote = document.getElementById('admin-preview-note');
+      previewNote.textContent = 'Selecione arquivos para ver a previa.';
+      draftPreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+      draftPreviewUrls = [];
+    }
+
+    function appendSelectedFiles(fileList) {
+      const incoming = Array.from(fileList || []);
+      if (incoming.length === 0) return;
+      selectedFiles = selectedFiles.concat(incoming);
+      syncFileInput();
+      renderSelectedFiles();
+      updateDraftPreview(selectedFiles);
+    }
+
+    function removeSelectedFile(index) {
+      selectedFiles.splice(index, 1);
+      syncFileInput();
+      renderSelectedFiles();
+      updateDraftPreview(selectedFiles);
+    }
+
+    function syncFileInput() {
+      const input = document.getElementById('media-files');
+      const data = new DataTransfer();
+      selectedFiles.forEach((file) => data.items.add(file));
+      input.files = data.files;
+    }
+
+    function renderSelectedFiles() {
+      const list = document.getElementById('admin-files-list');
+      if (!list) return;
+      list.innerHTML = '';
+      if (selectedFiles.length === 0) {
+        const empty = document.createElement('span');
+        empty.className = 'admin-files-empty';
+        empty.textContent = 'Nenhum arquivo selecionado.';
+        list.appendChild(empty);
+        return;
+      }
+
+      selectedFiles.forEach((file, index) => {
+        const row = document.createElement('div');
+        row.className = 'admin-file-pill';
+
+        const name = document.createElement('span');
+        name.textContent = file.name;
+
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'admin-file-remove';
+        remove.textContent = 'x';
+        remove.addEventListener('click', () => removeSelectedFile(index));
+
+        row.appendChild(name);
+        row.appendChild(remove);
+        list.appendChild(row);
+      });
+    }
+
+    async function loadAdminItems() {
+      try {
+        const response = await fetch(API_BASE + '/api/items');
+        if (!response.ok) return;
+        const items = await response.json();
+        items.forEach((item) => addAdminItemFromData(item));
+      } catch (error) {
+        const itemsNote = document.getElementById('admin-items-note');
+        itemsNote.textContent = 'Servidor offline. Itens nao carregados.';
+      }
+    }
+  </script>
+</body>
+</html>

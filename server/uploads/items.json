@@ -1,0 +1,66 @@
+[
+  {
+    "id": "item-front-1",
+    "title": "Casa terrea moderna",
+    "desc": "Fachada contemporanea, garagem coberta e excelente localizacao.",
+    "whatsappMessage": "Ola, me interessei no imovel da landing e quero mais informacoes.",
+    "media": [
+      {
+        "type": "image",
+        "url": "/uploads/imovel1.jpg",
+        "filename": "imovel1.jpg"
+      }
+    ],
+    "type": "image",
+    "url": "/uploads/imovel1.jpg",
+    "createdAt": "2026-02-08T00:00:00.000Z"
+  },
+  {
+    "id": "item-front-2",
+    "title": "Condominio clube completo",
+    "desc": "Piscinas, quadras, area de lazer e estrutura completa para a familia.",
+    "whatsappMessage": "Ola, me interessei no imovel da landing e quero mais informacoes.",
+    "media": [
+      {
+        "type": "image",
+        "url": "/uploads/imovel2.jpg",
+        "filename": "imovel2.jpg"
+      }
+    ],
+    "type": "image",
+    "url": "/uploads/imovel2.jpg",
+    "createdAt": "2026-02-08T00:00:00.000Z"
+  },
+  {
+    "id": "item-front-3",
+    "title": "Apartamento com varanda",
+    "desc": "Varanda com vista para o condominio e espaco para receber amigos.",
+    "whatsappMessage": "Ola, me interessei no imovel da landing e quero mais informacoes.",
+    "media": [
+      {
+        "type": "image",
+        "url": "/uploads/imovel3.jpg",
+        "filename": "imovel3.jpg"
+      }
+    ],
+    "type": "image",
+    "url": "/uploads/imovel3.jpg",
+    "createdAt": "2026-02-08T00:00:00.000Z"
+  },
+  {
+    "id": "item-front-4",
+    "title": "Casa de esquina",
+    "desc": "Imovel de esquina, otima fachada e gramado bem cuidado.",
+    "whatsappMessage": "Ola, me interessei no imovel da landing e quero mais informacoes.",
+    "media": [
+      {
+        "type": "image",
+        "url": "/uploads/imovel4.jpg",
+        "filename": "imovel4.jpg"
+      }
+    ],
+    "type": "image",
+    "url": "/uploads/imovel4.jpg",
+    "createdAt": "2026-02-08T00:00:00.000Z"
+  }
+]
