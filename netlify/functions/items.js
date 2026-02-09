@@ -1,21 +1,16 @@
-import { neon } from "@netlify/neon";
-import { getStore } from "@netlify/blobs";
+import { createClient } from "@supabase/supabase-js";
 import Busboy from "busboy";
 import { Readable } from "stream";
 
-const sql = neon();
-const MAX_FILE_SIZE = 40 * 1024 * 1024;
 const DEFAULT_WHATS_MESSAGE = "Ola, me interessei no imovel da landing e quero mais informacoes.";
+const MAX_FILE_SIZE = 40 * 1024 * 1024;
+const SIGNED_URL_TTL = 60 * 60;
 
 function jsonResponse(status, data) {
   return new Response(JSON.stringify(data), {
     status,
     headers: { "content-type": "application/json" }
   });
-}
-
-function getMediaStore() {
-  return getStore("media");
 }
 
 function extractId(requestUrl) {
@@ -31,65 +26,19 @@ function sanitizeFilename(name) {
   return safe || "file";
 }
 
-function withMediaUrls(media) {
-  return (media || []).map((item) => {
-    if (item.url) return item;
-    if (!item.key) return item;
-    const encoded = encodeURIComponent(item.key);
-    return {
-      ...item,
-      url: `/.netlify/functions/media/${encoded}`
-    };
+function getSupabase() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error("Missing Supabase environment variables.");
+  }
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false }
   });
 }
 
-async function ensureSchema() {
-  await sql`
-    CREATE TABLE IF NOT EXISTS items (
-      id text PRIMARY KEY,
-      title text NOT NULL,
-      description text NOT NULL,
-      whatsapp_message text NOT NULL,
-      media jsonb NOT NULL,
-      created_at timestamptz DEFAULT now()
-    );
-  `;
-}
-
-async function seedIfEmpty() {
-  const [{ count }] = await sql`SELECT COUNT(*)::int AS count FROM items`;
-  if (count > 0) return;
-
-  const seed = [
-    {
-      title: "Casa com area gourmet",
-      desc: "Ambientes integrados, patio amplo e acabamento premium.",
-      media: [{ type: "image", url: "imovel1.jpg" }]
-    },
-    {
-      title: "Apartamento com varanda",
-      desc: "Vista aberta, condominio completo e otima localizacao.",
-      media: [{ type: "image", url: "imovel2.jpg" }]
-    },
-    {
-      title: "Sobrado em condominio",
-      desc: "Seguranca 24h e lazer para toda a familia.",
-      media: [{ type: "image", url: "imovel3.jpg" }]
-    },
-    {
-      title: "Casa terrea moderna",
-      desc: "Projeto contemporaneo com garagem coberta.",
-      media: [{ type: "image", url: "imovel4.jpg" }]
-    }
-  ];
-
-  for (const item of seed) {
-    const id = crypto.randomUUID();
-    await sql`
-      INSERT INTO items (id, title, description, whatsapp_message, media)
-      VALUES (${id}, ${item.title}, ${item.desc}, ${DEFAULT_WHATS_MESSAGE}, ${JSON.stringify(item.media)}::jsonb)
-    `;
-  }
+function getBucket() {
+  return process.env.SUPABASE_BUCKET || "media";
 }
 
 async function parseMultipart(req) {
@@ -143,64 +92,151 @@ async function parseMultipart(req) {
   });
 }
 
-async function storeFiles(store, files, itemId) {
+async function storeFiles(supabase, bucket, files, itemId) {
   const media = [];
   for (const file of files) {
     const safeName = sanitizeFilename(file.filename);
-    const key = `${itemId}/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
-    await store.set(key, file.buffer, {
-      metadata: { contentType: file.contentType }
+    const path = `${itemId}/${Date.now()}-${crypto.randomUUID()}-${safeName}`;
+    const blob = new Blob([file.buffer], { type: file.contentType });
+    const { error } = await supabase.storage.from(bucket).upload(path, blob, {
+      contentType: file.contentType,
+      upsert: false
     });
+    if (error) {
+      throw new Error(error.message || "Upload failed");
+    }
     media.push({
       type: file.contentType.startsWith("video/") ? "video" : "image",
-      key,
+      path,
       contentType: file.contentType
     });
   }
   return media;
 }
 
+async function removeStoredMedia(supabase, bucket, media) {
+  const paths = (media || [])
+    .map((item) => item.path)
+    .filter(Boolean);
+  if (paths.length === 0) return;
+  await supabase.storage.from(bucket).remove(paths);
+}
+
+async function withSignedUrls(supabase, bucket, media) {
+  const result = [];
+  for (const item of media || []) {
+    if (item.url) {
+      result.push(item);
+      continue;
+    }
+    if (!item.path) {
+      result.push(item);
+      continue;
+    }
+    const { data, error } = await supabase.storage.from(bucket)
+      .createSignedUrl(item.path, SIGNED_URL_TTL);
+    if (error) {
+      throw new Error(error.message || "Signed URL error");
+    }
+    result.push({ ...item, url: data.signedUrl });
+  }
+  return result;
+}
+
 function normalizeText(value) {
   return (value || "").toString().trim();
 }
 
+async function ensureSeed(supabase) {
+  const { count, error } = await supabase
+    .from("items")
+    .select("id", { count: "exact", head: true });
+  if (error) throw error;
+  if (count && count > 0) return;
+
+  const seed = [
+    {
+      title: "Casa com area gourmet",
+      description: "Ambientes integrados, patio amplo e acabamento premium.",
+      whatsapp_message: DEFAULT_WHATS_MESSAGE,
+      media: [{ type: "image", url: "imovel1.jpg" }]
+    },
+    {
+      title: "Apartamento com varanda",
+      description: "Vista aberta, condominio completo e otima localizacao.",
+      whatsapp_message: DEFAULT_WHATS_MESSAGE,
+      media: [{ type: "image", url: "imovel2.jpg" }]
+    },
+    {
+      title: "Sobrado em condominio",
+      description: "Seguranca 24h e lazer para toda a familia.",
+      whatsapp_message: DEFAULT_WHATS_MESSAGE,
+      media: [{ type: "image", url: "imovel3.jpg" }]
+    },
+    {
+      title: "Casa terrea moderna",
+      description: "Projeto contemporaneo com garagem coberta.",
+      whatsapp_message: DEFAULT_WHATS_MESSAGE,
+      media: [{ type: "image", url: "imovel4.jpg" }]
+    }
+  ];
+
+  const { error: insertError } = await supabase.from("items").insert(seed);
+  if (insertError) throw insertError;
+}
+
 export default async (req) => {
   try {
-    const store = getMediaStore();
-    await ensureSchema();
-    await seedIfEmpty();
+    const supabase = getSupabase();
+    const bucket = getBucket();
+    await ensureSeed(supabase);
 
     const id = extractId(req.url);
     const method = req.method.toUpperCase();
 
     if (method === "GET") {
       if (id) {
-        const rows = await sql`
-          SELECT id, title, description AS desc, whatsapp_message AS "whatsappMessage", media
-          FROM items
-          WHERE id = ${id}
-        `;
-        if (rows.length === 0) return jsonResponse(404, { error: "Not found" });
-        const item = rows[0];
-        item.media = withMediaUrls(item.media);
-        return jsonResponse(200, item);
+        const { data, error } = await supabase
+          .from("items")
+          .select("id, title, description, whatsapp_message, media, created_at")
+          .eq("id", id)
+          .maybeSingle();
+        if (error) throw error;
+        if (!data) return jsonResponse(404, { error: "Not found" });
+
+        const media = await withSignedUrls(supabase, bucket, data.media);
+        return jsonResponse(200, {
+          id: data.id,
+          title: data.title,
+          desc: data.description,
+          whatsappMessage: data.whatsapp_message,
+          media
+        });
       }
 
-      const rows = await sql`
-        SELECT id, title, description AS desc, whatsapp_message AS "whatsappMessage", media
-        FROM items
-        ORDER BY created_at DESC
-      `;
-      rows.forEach((item) => {
-        item.media = withMediaUrls(item.media);
-      });
-      return jsonResponse(200, rows);
+      const { data, error } = await supabase
+        .from("items")
+        .select("id, title, description, whatsapp_message, media, created_at")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+
+      const items = [];
+      for (const item of data || []) {
+        const media = await withSignedUrls(supabase, bucket, item.media);
+        items.push({
+          id: item.id,
+          title: item.title,
+          desc: item.description,
+          whatsappMessage: item.whatsapp_message,
+          media
+        });
+      }
+      return jsonResponse(200, items);
     }
 
     if (method === "POST") {
       let fields = {};
       let files = [];
-
       if ((req.headers.get("content-type") || "").includes("multipart/form-data")) {
         try {
           ({ fields, files } = await parseMultipart(req));
@@ -217,35 +253,35 @@ export default async (req) => {
       const title = normalizeText(fields.title);
       const desc = normalizeText(fields.desc);
       const whatsappMessage = normalizeText(fields.whatsappMessage) || DEFAULT_WHATS_MESSAGE;
-
       if (!title || !desc) {
         return jsonResponse(400, { error: "Missing required fields." });
       }
 
       let media = [];
-      const newId = crypto.randomUUID();
-
       if (files.length > 0) {
-        media = await storeFiles(store, files, newId);
+        media = await storeFiles(supabase, bucket, files, crypto.randomUUID());
       } else if (Array.isArray(fields.media)) {
         media = fields.media;
       }
-
       if (media.length === 0) {
         return jsonResponse(400, { error: "Missing media files." });
       }
 
-      await sql`
-        INSERT INTO items (id, title, description, whatsapp_message, media)
-        VALUES (${newId}, ${title}, ${desc}, ${whatsappMessage}, ${JSON.stringify(media)}::jsonb)
-      `;
-
-      return jsonResponse(201, {
-        id: newId,
+      const { data, error } = await supabase.from("items").insert({
         title,
-        desc,
-        whatsappMessage,
-        media: withMediaUrls(media)
+        description: desc,
+        whatsapp_message: whatsappMessage,
+        media
+      }).select().single();
+      if (error) throw error;
+
+      const signedMedia = await withSignedUrls(supabase, bucket, data.media);
+      return jsonResponse(201, {
+        id: data.id,
+        title: data.title,
+        desc: data.description,
+        whatsappMessage: data.whatsapp_message,
+        media: signedMedia
       });
     }
 
@@ -267,64 +303,63 @@ export default async (req) => {
         fields = await req.json();
       }
 
-      const existing = await sql`
-        SELECT id, title, description AS desc, whatsapp_message AS "whatsappMessage", media
-        FROM items
-        WHERE id = ${id}
-      `;
-      if (existing.length === 0) return jsonResponse(404, { error: "Not found" });
+      const { data: current, error: currentError } = await supabase
+        .from("items")
+        .select("id, title, description, whatsapp_message, media")
+        .eq("id", id)
+        .maybeSingle();
+      if (currentError) throw currentError;
+      if (!current) return jsonResponse(404, { error: "Not found" });
 
-      const current = existing[0];
       const nextTitle = normalizeText(fields.title) || current.title;
-      const nextDesc = normalizeText(fields.desc) || current.desc;
-      const nextMessage = normalizeText(fields.whatsappMessage) || current.whatsappMessage || DEFAULT_WHATS_MESSAGE;
-      let nextMedia = current.media;
+      const nextDesc = normalizeText(fields.desc) || current.description;
+      const nextMessage = normalizeText(fields.whatsappMessage) || current.whatsapp_message || DEFAULT_WHATS_MESSAGE;
+      let nextMedia = current.media || [];
 
       if (files.length > 0) {
-        nextMedia = await storeFiles(store, files, id);
+        await removeStoredMedia(supabase, bucket, nextMedia);
+        nextMedia = await storeFiles(supabase, bucket, files, current.id);
       } else if (Array.isArray(fields.media) && fields.media.length > 0) {
         nextMedia = fields.media;
       }
 
-      await sql`
-        UPDATE items
-        SET title = ${nextTitle},
-            description = ${nextDesc},
-            whatsapp_message = ${nextMessage},
-            media = ${JSON.stringify(nextMedia)}::jsonb
-        WHERE id = ${id}
-      `;
-
-      return jsonResponse(200, {
-        id,
+      const { data, error } = await supabase.from("items").update({
         title: nextTitle,
-        desc: nextDesc,
-        whatsappMessage: nextMessage,
-        media: withMediaUrls(nextMedia)
+        description: nextDesc,
+        whatsapp_message: nextMessage,
+        media: nextMedia
+      }).eq("id", id).select().single();
+      if (error) throw error;
+
+      const signedMedia = await withSignedUrls(supabase, bucket, data.media);
+      return jsonResponse(200, {
+        id: data.id,
+        title: data.title,
+        desc: data.description,
+        whatsappMessage: data.whatsapp_message,
+        media: signedMedia
       });
     }
 
     if (method === "DELETE") {
       if (!id) return jsonResponse(400, { error: "Missing id." });
-      const existing = await sql`
-        SELECT media FROM items WHERE id = ${id}
-      `;
-      if (existing.length > 0) {
-        const media = existing[0].media || [];
-        for (const item of media) {
-          if (item.key) {
-            await store.delete(item.key);
-          }
-        }
+      const { data, error } = await supabase
+        .from("items")
+        .select("media")
+        .eq("id", id)
+        .maybeSingle();
+      if (error) throw error;
+      if (data?.media) {
+        await removeStoredMedia(supabase, bucket, data.media);
       }
-      await sql`DELETE FROM items WHERE id = ${id}`;
+      const { error: deleteError } = await supabase.from("items").delete().eq("id", id);
+      if (deleteError) throw deleteError;
       return jsonResponse(200, { ok: true });
     }
 
     return jsonResponse(405, { error: "Method not allowed." });
   } catch (error) {
     console.error("items function error", error);
-    const detail = process.env.NETLIFY_DEV === "true" ? String(error) : undefined;
-    return jsonResponse(500, { error: "Server error.", detail });
+    return jsonResponse(500, { error: "Server error." });
   }
 };

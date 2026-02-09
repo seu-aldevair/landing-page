@@ -19,8 +19,7 @@
   },
   "homepage": "https://github.com/seu-aldevair/landing-page#readme",
   "dependencies": {
-    "@netlify/blobs": "^7.0.0",
-    "@netlify/neon": "^0.1.2",
+    "@supabase/supabase-js": "^2.95.3",
     "busboy": "^1.6.0"
   }
 }
