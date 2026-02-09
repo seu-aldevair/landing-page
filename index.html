@@ -90,7 +90,7 @@
           <input id="admin-pass" type="password" placeholder="Senha do admin" autocomplete="current-password">
           <button type="button" class="btn" onclick="adminLogin()">Entrar</button>
         </div>
-        <small>Para maior seguranca, use autenticacao no servidor.</small>
+        <small>Para maior seguranca, use autenticacao no backend.</small>
       </div>
 
       <div id="admin-content" class="admin-content" hidden>
@@ -139,7 +139,7 @@
                 <button id="admin-confirm-btn" type="button" class="btn" onclick="confirmAdminAction()">Adicionar midia</button>
                 <button type="button" class="btn btn-outline" onclick="clearAdminSelection()">Limpar</button>
               </div>
-              <small class="admin-form-hint">Os arquivos sao enviados para o servidor e aparecem na pagina.</small>
+              <small class="admin-form-hint">Os arquivos enviados aparecem na pagina automaticamente.</small>
             </section>
 
             <section class="admin-pane admin-preview" id="admin-preview">
@@ -184,14 +184,15 @@
   </section>
 
   <script>
-    const ADMIN_PASSWORD = "adm123";
+    const ADMIN_PASSWORD = "De185263#";
     const DEFAULT_WHATS_MESSAGE = "Ola, me interessei no imovel da landing e quero mais informacoes.";
     const adminItems = new Map();
     let selectedAdminId = null;
     let itemCounter = 0;
     let draftPreviewUrls = [];
     let adminActionMode = 'add';
-    const API_BASE = window.location.port === '5500' ? 'http://localhost:3001' : '';
+    const API_BASE = '/.netlify/functions';
+    const MAX_FILE_SIZE = 40 * 1024 * 1024;
     let pendingDeleteIds = [];
     const deleteSelection = new Set();
     let selectedFiles = [];
@@ -220,8 +221,17 @@
     function resolveMediaUrl(url) {
       if (!url) return url;
       if (url.startsWith('http')) return url;
-      if (url.startsWith('/uploads') && API_BASE) return API_BASE + url;
       return url;
+    }
+
+    function getSelectedFiles() {
+      const input = document.getElementById('media-files');
+      const inputFiles = Array.from((input && input.files) ? input.files : []);
+      if (selectedFiles.length === 0 && inputFiles.length > 0) {
+        selectedFiles = inputFiles;
+        renderSelectedFiles();
+      }
+      return selectedFiles.length > 0 ? selectedFiles : inputFiles;
     }
 
     function enviarWhatsForm() {
@@ -276,16 +286,6 @@
       setAdminActionMode('add');
     }
 
-    function getSelectedFiles() {
-      const input = document.getElementById('media-files');
-      const inputFiles = Array.from((input && input.files) ? input.files : []);
-      if (selectedFiles.length === 0 && inputFiles.length > 0) {
-        selectedFiles = inputFiles;
-        renderSelectedFiles();
-      }
-      return selectedFiles.length > 0 ? selectedFiles : inputFiles;
-    }
-
     async function addMediaCards() {
       const files = getSelectedFiles();
       if (!files || files.length === 0) {
@@ -307,7 +307,7 @@
       Array.from(files).forEach((file) => formData.append('files', file));
 
       try {
-        const response = await fetch(API_BASE + '/api/items', {
+        const response = await fetch(API_BASE + '/items', {
           method: 'POST',
           body: formData
         });
@@ -334,15 +334,15 @@
         titleInput.value = '';
         descInput.value = '';
         messageInput.value = '';
-        resizeAdminTextarea();
-        updateWhatsappMeta();
         document.getElementById('media-files').value = '';
         selectedFiles = [];
         renderSelectedFiles();
+        resizeAdminTextarea();
+        updateWhatsappMeta();
         clearDraftPreview();
         showToast('Midia adicionada com sucesso.', 'success');
       } catch (error) {
-        showToast('Nao foi possivel salvar. ' + (error.message || 'Verifique o servidor.'), 'error');
+        showToast('Nao foi possivel salvar. ' + (error.message || 'Verifique a conexao.'), 'error');
       }
     }
 
@@ -508,8 +508,11 @@
       document.getElementById('media-desc').value = item.desc;
       document.getElementById('media-whatsapp').value = item.whatsappMessage || DEFAULT_WHATS_MESSAGE;
       document.getElementById('media-files').value = '';
+      selectedFiles = [];
+      renderSelectedFiles();
       resizeAdminTextarea();
       updateWhatsappMeta();
+      updateDraftPreview(getSelectedFiles());
     }
 
     function setAdminActionMode(mode) {
@@ -606,7 +609,7 @@
       }
 
       try {
-        const response = await fetch(API_BASE + '/api/items/' + encodeURIComponent(id), {
+        const response = await fetch(API_BASE + '/items/' + encodeURIComponent(id), {
           method: 'PUT',
           body: formData
         });
@@ -631,7 +634,7 @@
         updateConfirmButtonState();
         showToast('Edicao salva com sucesso.', 'success');
       } catch (error) {
-        showToast('Nao foi possivel editar. Verifique o servidor.', 'error');
+        showToast('Nao foi possivel editar. Verifique a conexao.', 'error');
       }
     }
 
@@ -773,7 +776,7 @@
       if (!item) return;
 
       try {
-        const response = await fetch(API_BASE + '/api/items/' + encodeURIComponent(id), {
+        const response = await fetch(API_BASE + '/items/' + encodeURIComponent(id), {
           method: 'DELETE'
         });
         if (!response.ok) throw new Error('Falha ao excluir.');
@@ -1013,7 +1016,16 @@
     function appendSelectedFiles(fileList) {
       const incoming = Array.from(fileList || []);
       if (incoming.length === 0) return;
-      selectedFiles = selectedFiles.concat(incoming);
+      const accepted = [];
+      incoming.forEach((file) => {
+        if (file.size > MAX_FILE_SIZE) {
+          showToast('Arquivo acima de 40 MB: ' + file.name, 'error');
+          return;
+        }
+        accepted.push(file);
+      });
+      if (accepted.length === 0) return;
+      selectedFiles = selectedFiles.concat(accepted);
       syncFileInput();
       renderSelectedFiles();
       updateDraftPreview(selectedFiles);
@@ -1066,7 +1078,7 @@
 
     async function loadAdminItems() {
       try {
-        const response = await fetch(API_BASE + '/api/items');
+        const response = await fetch(API_BASE + '/items');
         if (!response.ok) return;
         const items = await response.json();
         items.forEach((item) => addAdminItemFromData(item));

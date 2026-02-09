@@ -1,0 +1,26 @@
+{
+  "name": "landing-page",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seu-aldevair/landing-page.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/seu-aldevair/landing-page/issues"
+  },
+  "homepage": "https://github.com/seu-aldevair/landing-page#readme",
+  "dependencies": {
+    "@netlify/blobs": "^7.0.0",
+    "@netlify/neon": "^0.1.2",
+    "busboy": "^1.6.0"
+  }
+}
