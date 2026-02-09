@@ -4,7 +4,6 @@ import Busboy from "busboy";
 import { Readable } from "stream";
 
 const sql = neon();
-const store = getStore("media");
 const MAX_FILE_SIZE = 40 * 1024 * 1024;
 const DEFAULT_WHATS_MESSAGE = "Ola, me interessei no imovel da landing e quero mais informacoes.";
 
@@ -13,6 +12,10 @@ function jsonResponse(status, data) {
     status,
     headers: { "content-type": "application/json" }
   });
+}
+
+function getMediaStore() {
+  return getStore("media");
 }
 
 function extractId(requestUrl) {
@@ -140,7 +143,7 @@ async function parseMultipart(req) {
   });
 }
 
-async function storeFiles(files, itemId) {
+async function storeFiles(store, files, itemId) {
   const media = [];
   for (const file of files) {
     const safeName = sanitizeFilename(file.filename);
@@ -163,6 +166,7 @@ function normalizeText(value) {
 
 export default async (req) => {
   try {
+    const store = getMediaStore();
     await ensureSchema();
     await seedIfEmpty();
 
@@ -222,7 +226,7 @@ export default async (req) => {
       const newId = crypto.randomUUID();
 
       if (files.length > 0) {
-        media = await storeFiles(files, newId);
+        media = await storeFiles(store, files, newId);
       } else if (Array.isArray(fields.media)) {
         media = fields.media;
       }
@@ -277,7 +281,7 @@ export default async (req) => {
       let nextMedia = current.media;
 
       if (files.length > 0) {
-        nextMedia = await storeFiles(files, id);
+        nextMedia = await storeFiles(store, files, id);
       } else if (Array.isArray(fields.media) && fields.media.length > 0) {
         nextMedia = fields.media;
       }
@@ -319,6 +323,8 @@ export default async (req) => {
 
     return jsonResponse(405, { error: "Method not allowed." });
   } catch (error) {
-    return jsonResponse(500, { error: "Server error." });
+    console.error("items function error", error);
+    const detail = process.env.NETLIFY_DEV === "true" ? String(error) : undefined;
+    return jsonResponse(500, { error: "Server error.", detail });
   }
 };
