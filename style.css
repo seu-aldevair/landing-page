@@ -1234,14 +1234,27 @@ footer {
     align-items:flex-start;
   }
 
+  .admin-top-actions {
+    width:100%;
+    display:flex;
+    justify-content:flex-end;
+  }
+
+  .admin-close {
+    align-self:flex-end;
+  }
+
   .admin-mode {
     flex-wrap:wrap;
     gap:8px;
+    border-radius:0;
   }
 
   .admin-mode-btn {
     flex:1 1 100%;
     text-align:center;
+    border-radius:0;
+    padding:12px 14px;
   }
 
   .admin-form {
@@ -1281,6 +1294,14 @@ footer {
     align-items:flex-start;
   }
 
+  .admin-item-meta {
+    width:100%;
+  }
+
+  .admin-item-actions {
+    margin-top:6px;
+  }
+
   .admin-item-thumbs {
     flex-wrap:wrap;
   }
@@ -1315,6 +1336,14 @@ footer {
   .admin-login-row input,
   .admin-login-row .btn {
     width:100%;
+  }
+
+  .admin-login-row input {
+    min-height:44px;
+    height:auto;
+    font-size:16px;
+    line-height:1.2;
+    padding:12px 14px;
   }
 
   .toast-container {
