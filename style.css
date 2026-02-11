@@ -1139,17 +1139,22 @@ footer {
     max-height:94vh;
   }
 
-  .admin-top {
+  .admin-pane {
+    padding:14px;
+  }
+
+  .admin-pane-header {
     flex-direction:column;
     align-items:flex-start;
   }
 
-  .admin-top-actions {
-    width:100%;
+  .admin-pane-tag {
+    margin-top:4px;
   }
 
-  .admin-close {
-    width:100%;
+  .admin-top {
+    flex-direction:column;
+    align-items:flex-start;
   }
 
   .admin-mode {
@@ -1174,6 +1179,16 @@ footer {
 
   .admin-preview-grid {
     grid-template-columns:1fr;
+  }
+
+  .admin-login-row {
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .admin-login-row input,
+  .admin-login-row .btn {
+    width:100%;
   }
 
   .toast-container {
