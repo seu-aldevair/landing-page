@@ -1113,8 +1113,31 @@ footer {
     font-size:15px;
   }
 
+  html,
+  body {
+    overflow-x:hidden;
+  }
+
+  .container {
+    width:92%;
+  }
+
+  .top {
+    position:static;
+  }
+
   .top-content {
     gap:0.6rem;
+  }
+
+  .logo {
+    width:170px;
+  }
+
+  .top-info {
+    font-size:0.75rem;
+    text-align:left;
+    align-items:flex-start;
   }
 
   .top-info {
@@ -1126,6 +1149,39 @@ footer {
     padding:36px 0 30px;
   }
 
+  .hero-text h1 {
+    font-size:1.7rem;
+  }
+
+  .hero-text p {
+    font-size:0.95rem;
+  }
+
+  .hero-card input,
+  .hero-card select {
+    font-size:0.95rem;
+  }
+
+  .hero-text,
+  .hero-card {
+    text-align:left;
+  }
+
+  .btn,
+  .btn-small,
+  .btn-main {
+    width:100%;
+    text-align:center;
+  }
+
+  .hero-note {
+    font-size:0.75rem;
+  }
+
+  .hero-card form {
+    gap:10px;
+  }
+
   .hero-card {
     padding:16px;
   }
@@ -1134,9 +1190,30 @@ footer {
     grid-template-columns:1fr;
   }
 
+  .card-media img,
+  .card-media video,
+  .card img {
+    height:200px;
+  }
+
+  .card-info h3 {
+    font-size:1rem;
+  }
+
+  .card-info p {
+    font-size:0.85rem;
+    line-height:1.4;
+  }
+
   .admin-shell {
     padding:18px;
     max-height:94vh;
+    border-radius:18px;
+    width:100%;
+  }
+
+  .admin-subtitle {
+    font-size:0.85rem;
   }
 
   .admin-pane {
@@ -1167,9 +1244,49 @@ footer {
     text-align:center;
   }
 
+  .admin-form {
+    grid-template-columns:1fr;
+  }
+
+  .admin-field input,
+  .admin-field textarea {
+    font-size:0.9rem;
+  }
+
+  .admin-field label {
+    font-size:0.72rem;
+  }
+
+  .admin-field-meta {
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .admin-actions {
+    width:100%;
+  }
+
+  .admin-actions .btn,
+  .admin-actions .btn-outline {
+    width:100%;
+    justify-content:center;
+  }
+
+  .admin-actions .btn {
+    padding:12px 18px;
+  }
+
   .admin-item-row {
     flex-direction:column;
     align-items:flex-start;
+  }
+
+  .admin-item-thumbs {
+    flex-wrap:wrap;
+  }
+
+  .admin-item-meta strong {
+    font-size:0.95rem;
   }
 
   .admin-item-actions {
@@ -1177,8 +1294,17 @@ footer {
     justify-content:space-between;
   }
 
+  .admin-items {
+    max-height:60vh;
+  }
+
   .admin-preview-grid {
     grid-template-columns:1fr;
+  }
+
+  .admin-preview-card img,
+  .admin-preview-card video {
+    height:200px;
   }
 
   .admin-login-row {
@@ -1195,5 +1321,10 @@ footer {
     left:12px;
     right:12px;
     top:12px;
+  }
+
+  .toast {
+    width:100%;
+    max-width:none;
   }
 }
