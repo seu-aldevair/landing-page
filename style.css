@@ -1079,3 +1079,78 @@ footer {
     align-items:flex-start;
   }
 }
+
+@media (max-width: 600px) {
+  body {
+    font-size:15px;
+  }
+
+  .top-content {
+    gap:0.6rem;
+  }
+
+  .top-info {
+    width:100%;
+    gap:8px;
+  }
+
+  .hero {
+    padding:36px 0 30px;
+  }
+
+  .hero-card {
+    padding:16px;
+  }
+
+  .grid {
+    grid-template-columns:1fr;
+  }
+
+  .admin-shell {
+    padding:18px;
+    max-height:94vh;
+  }
+
+  .admin-top {
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .admin-top-actions {
+    width:100%;
+  }
+
+  .admin-close {
+    width:100%;
+  }
+
+  .admin-mode {
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  .admin-mode-btn {
+    flex:1 1 100%;
+    text-align:center;
+  }
+
+  .admin-item-row {
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .admin-item-actions {
+    width:100%;
+    justify-content:space-between;
+  }
+
+  .admin-preview-grid {
+    grid-template-columns:1fr;
+  }
+
+  .toast-container {
+    left:12px;
+    right:12px;
+    top:12px;
+  }
+}

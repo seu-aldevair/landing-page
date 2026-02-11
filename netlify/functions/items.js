@@ -4,7 +4,6 @@ import { Readable } from "stream";
 
 const DEFAULT_WHATS_MESSAGE = "Ola, me interessei no imovel da landing e quero mais informacoes.";
 const MAX_FILE_SIZE = 40 * 1024 * 1024;
-const SIGNED_URL_TTL = 60 * 60;
 
 function jsonResponse(status, data) {
   return new Response(JSON.stringify(data), {
@@ -122,7 +121,7 @@ async function removeStoredMedia(supabase, bucket, media) {
   await supabase.storage.from(bucket).remove(paths);
 }
 
-async function withSignedUrls(supabase, bucket, media) {
+async function withPublicUrls(supabase, bucket, media) {
   const result = [];
   for (const item of media || []) {
     if (item.url) {
@@ -133,12 +132,8 @@ async function withSignedUrls(supabase, bucket, media) {
       result.push(item);
       continue;
     }
-    const { data, error } = await supabase.storage.from(bucket)
-      .createSignedUrl(item.path, SIGNED_URL_TTL);
-    if (error) {
-      throw new Error(error.message || "Signed URL error");
-    }
-    result.push({ ...item, url: data.signedUrl });
+    const { data } = supabase.storage.from(bucket).getPublicUrl(item.path);
+    result.push({ ...item, url: data.publicUrl });
   }
   return result;
 }
@@ -204,7 +199,7 @@ export default async (req) => {
         if (error) throw error;
         if (!data) return jsonResponse(404, { error: "Not found" });
 
-        const media = await withSignedUrls(supabase, bucket, data.media);
+        const media = await withPublicUrls(supabase, bucket, data.media);
         return jsonResponse(200, {
           id: data.id,
           title: data.title,
@@ -222,7 +217,7 @@ export default async (req) => {
 
       const items = [];
       for (const item of data || []) {
-        const media = await withSignedUrls(supabase, bucket, item.media);
+        const media = await withPublicUrls(supabase, bucket, item.media);
         items.push({
           id: item.id,
           title: item.title,
@@ -275,7 +270,7 @@ export default async (req) => {
       }).select().single();
       if (error) throw error;
 
-      const signedMedia = await withSignedUrls(supabase, bucket, data.media);
+      const signedMedia = await withPublicUrls(supabase, bucket, data.media);
       return jsonResponse(201, {
         id: data.id,
         title: data.title,
@@ -331,7 +326,7 @@ export default async (req) => {
       }).eq("id", id).select().single();
       if (error) throw error;
 
-      const signedMedia = await withSignedUrls(supabase, bucket, data.media);
+      const signedMedia = await withPublicUrls(supabase, bucket, data.media);
       return jsonResponse(200, {
         id: data.id,
         title: data.title,
