@@ -198,6 +198,7 @@
     let selectedFiles = [];
     const toastQueue = [];
     let toastTimer = null;
+    let adminIsLoading = false;
 
     function showToast(message, type = 'info') {
       const container = document.getElementById('toast-container');
@@ -216,6 +217,21 @@
       };
 
       setTimeout(remove, 3200);
+    }
+
+    function setAdminLoading(isLoading, label) {
+      const confirmBtn = document.getElementById('admin-confirm-btn');
+      if (!confirmBtn) return;
+      adminIsLoading = isLoading;
+      confirmBtn.classList.toggle('is-loading', isLoading);
+      confirmBtn.disabled = isLoading || (adminActionMode === 'edit' && !selectedAdminId) || (adminActionMode === 'delete' && deleteSelection.size === 0);
+      if (isLoading && label) {
+        confirmBtn.dataset.originalText = confirmBtn.textContent;
+        confirmBtn.textContent = label;
+      } else if (!isLoading && confirmBtn.dataset.originalText) {
+        confirmBtn.textContent = confirmBtn.dataset.originalText;
+        delete confirmBtn.dataset.originalText;
+      }
     }
 
     function resolveMediaUrl(url) {
@@ -307,6 +323,7 @@
       Array.from(files).forEach((file) => formData.append('files', file));
 
       try {
+        setAdminLoading(true, 'Enviando...');
         const response = await fetch(API_BASE + '/items', {
           method: 'POST',
           body: formData
@@ -343,6 +360,8 @@
         showToast('Midia adicionada com sucesso.', 'success');
       } catch (error) {
         showToast('Nao foi possivel salvar. ' + (error.message || 'Verifique a conexao.'), 'error');
+      } finally {
+        setAdminLoading(false);
       }
     }
 
@@ -609,6 +628,7 @@
       }
 
       try {
+        setAdminLoading(true, 'Salvando...');
         const response = await fetch(API_BASE + '/items/' + encodeURIComponent(id), {
           method: 'PUT',
           body: formData
@@ -635,6 +655,8 @@
         showToast('Edicao salva com sucesso.', 'success');
       } catch (error) {
         showToast('Nao foi possivel editar. Verifique a conexao.', 'error');
+      } finally {
+        setAdminLoading(false);
       }
     }
 
@@ -859,6 +881,7 @@
     }
 
     function confirmAdminAction() {
+      if (adminIsLoading) return;
       if (adminActionMode === 'add') {
         addMediaCards();
         return;
@@ -891,6 +914,7 @@
     function updateConfirmButtonState() {
       const confirmBtn = document.getElementById('admin-confirm-btn');
       if (!confirmBtn) return;
+      if (adminIsLoading) return;
       if (adminActionMode === 'edit' || adminActionMode === 'delete') {
         if (adminActionMode === 'delete') {
           confirmBtn.disabled = deleteSelection.size === 0;
@@ -922,17 +946,19 @@
       modal.classList.remove('admin-confirm-open');
     }
 
-    function confirmDeleteAction() {
+    async function confirmDeleteAction() {
       if (!pendingDeleteIds || pendingDeleteIds.length === 0) {
         closeDeleteConfirm();
         return;
       }
       const ids = [...pendingDeleteIds];
       pendingDeleteIds = [];
-      ids.forEach((id) => removeAdminItem(id, { keepMode: true }));
+      setAdminLoading(true, 'Excluindo...');
+      await Promise.all(ids.map((id) => removeAdminItem(id, { keepMode: true })));
       deleteSelection.clear();
       updateDeleteSelectionUi();
       closeDeleteConfirm();
+      setAdminLoading(false);
     }
 
     function updateDeleteSelectionUi() {
